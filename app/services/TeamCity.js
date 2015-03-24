@@ -11,13 +11,14 @@ module.exports = function () {
         getFinishedBuildsUrl = function () {
             return self.configuration.url +
                 '/httpAuth/app/rest/buildTypes/id:' + self.configuration.buildConfigurationId +
-                '/builds';
+                '/builds' +
+                '?locator=?locator=branch:any';
         },
         getCanceledBuildsUrl = function () {
-            return getFinishedBuildsUrl() + '?locator=canceled:true';
+            return getFinishedBuildsUrl() + '?locator=canceled:true&?locator=branch:any';
         },
         getRunningBuildsUrl = function () {
-            return getFinishedBuildsUrl() + '?locator=running:true';
+            return getFinishedBuildsUrl() + '?locator=running:true&?locator=branch:any';
         },
         getBuildDetailsUrl = function (url) {
             return self.configuration.url + url;
