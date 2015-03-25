@@ -6,8 +6,18 @@ var request = require('request'),
 module.exports = function () {
     var self = this,
         selectMany = function (array, selector) {
-            return array.map(selector).reduce(function (x, y) { return x.concat(y); }, []);
+            return array.map(selector).reduce(function (x, y) {
+                return x.concat(y);
+            }, []);
         },
+        getLastBuildUrl = function(){
+          return self.configuration.url +
+              '/httpAuth/app/rest/buildTypes/id:' + self.configuration.buildConfigurationId +
+              '/builds' +
+              '?locator=lookupLimit:1' +
+              ',branch:default:any';
+        },
+
         getFinishedBuildsUrl = function () {
             return self.configuration.url +
                 '/httpAuth/app/rest/buildTypes/id:' + self.configuration.buildConfigurationId +
@@ -24,32 +34,36 @@ module.exports = function () {
             return self.configuration.url + url;
         },
         makeRequest = function (url, callback) {
-            request({ 
-                'url': url,
-                'rejectUnauthorized': false,
-                'headers': { 'Accept': 'application/json' },
-                'json' : true
+            request({
+                    'url': url,
+                    'rejectUnauthorized': false,
+                    'headers': {'Accept': 'application/json'},
+                    'json': true
                 },
-                function(error, response, body) {
+                function (error, response, body) {
                     callback(error, body);
-            });
+                });
         },
         requestBuilds = function (callback) {
-            var requestFinishedBuilds = makeRequest.bind(this, getFinishedBuildsUrl());
-            var requestCanceledBuilds = makeRequest.bind(this, getCanceledBuildsUrl());
-            var requestRunningBuilds = makeRequest.bind(this, getRunningBuildsUrl());
-
+            //var requestFinishedBuilds = makeRequest.bind(this, getFinishedBuildsUrl());
+            //var requestCanceledBuilds = makeRequest.bind(this, getCanceledBuildsUrl());
+                var requestRunningBuilds = makeRequest.bind(this, getRunningBuildsUrl());
+                var requestLastBuild = makeRequest.bind(this, getLastBuildUrl());
+            console.log(getLastBuildUrl())
             async.parallel([
-                requestFinishedBuilds,
+                //requestFinishedBuilds,
                 requestRunningBuilds,
-                requestCanceledBuilds
+                //requestCanceledBuilds
+                requestLastBuild
             ], function (error, data) {
-                var merged = selectMany(data, function (x) { return x.build || []; });
+                var merged = selectMany(data, function (x) {
+                    return x.build || [];
+                });
                 callback(error, merged);
             });
         },
         requestBuild = function (build, callback) {
-            makeRequest(getBuildDetailsUrl(build.href), function(error, data) {
+            makeRequest(getBuildDetailsUrl(build.href), function (error, data) {
                 callback(null, simplifyBuild(data));
             });
         },
@@ -93,19 +107,26 @@ module.exports = function () {
             return null;
         },
         getRequestedFor = function (build) {
-            if(build.triggered.type === 'user' && build.triggered.user) {
-                return build.triggered.user.username;
-            } else if (build.triggered.type === 'vcs') {
-                return build.triggered.details;
-            }
 
-            return null;
+           if(build.running === true) return null;
+
+           // if (build.triggered.type === 'user' && build.triggered.user) {
+             //   return build.triggered.user.name;
+            //}
+            //else if (build.triggered.type === 'vcs') {
+              //  return build.triggered.details;
+           // }
+
+            return build.lastChanges.change[0].username;
+
+           // return null;
         },
         simplifyBuild = function (res) {
             return {
                 id: res.buildTypeId + '|' + res.number,
                 project: res.buildType.projectName,
                 definition: res.buildType.name,
+                branchName: res.branchName,
                 number: res.number,
                 isRunning: res.running === true,
                 startedAt: parseStartDate(res),

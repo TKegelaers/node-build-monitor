@@ -6,6 +6,7 @@ define(['ko', 'moment', 'countdown'], function (ko, moment, countdown) {
         this.isRunning = ko.observable();
         this.project = ko.observable();
         this.definition = ko.observable();
+        this.branchName = ko.observable();
         this.number = ko.observable();
         this.startedAt = ko.observable();
         this.finishedAt = ko.observable();
@@ -22,6 +23,7 @@ define(['ko', 'moment', 'countdown'], function (ko, moment, countdown) {
             this.isRunning(build.isRunning);
             this.project(build.project);
             this.definition(build.definition);
+            this.branchName(build.branchName);
             this.number(build.number);
             this.startedAt(moment(build.startedAt));
             this.finishedAt(moment(build.finishedAt));

@@ -9,8 +9,12 @@
           <span> | </span>
           <span data-bind="text: definition"></span>
         </span>
-        <span> | </span>
-        <span data-bind="text: statusText"></span>
+         <span data-bind="visible: branchName">
+             <span> | </span>
+          <span data-bind="text: branchName"></span>
+         </span>
+             <span> | </span>
+          <span data-bind="text: statusText"></span>
       </div>
       <div class="part-2">
         <span class="fa fa-cog"></span>
