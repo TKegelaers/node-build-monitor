@@ -1,8 +1,8 @@
 var request = require('request'),
     async = require('async'),
     moment = require('moment'),
-    TEAMCITY_DATE_FORMAT = 'YYYYMMDDTHHmmss+Z';
-
+    TEAMCITY_DATE_FORMAT = 'YYYYMMDDTHHmmss+Z',
+    _ = require('underscore');
 module.exports = function () {
     var self = this,
         selectMany = function (array, selector) {
@@ -10,6 +10,14 @@ module.exports = function () {
                 return x.concat(y);
             }, []);
         },
+
+        getBuildsByProject = function(){
+           return self.configuration.url +
+                   '/httpAuth/app/rest/builds?locator=project:' +
+                    self.configuration.project +
+                    ',branch:default:any';
+        },
+
         getLastBuildUrl = function(){
           return self.configuration.url +
               '/httpAuth/app/rest/buildTypes/id:' + self.configuration.buildConfigurationId +
@@ -48,18 +56,25 @@ module.exports = function () {
             //var requestFinishedBuilds = makeRequest.bind(this, getFinishedBuildsUrl());
             //var requestCanceledBuilds = makeRequest.bind(this, getCanceledBuildsUrl());
                 var requestRunningBuilds = makeRequest.bind(this, getRunningBuildsUrl());
-                var requestLastBuild = makeRequest.bind(this, getLastBuildUrl());
+                //var requestLastBuild = makeRequest.bind(this, getLastBuildUrl());
+            var requestBuildsByProject = makeRequest.bind(this,getBuildsByProject());
             console.log(getLastBuildUrl())
             async.parallel([
                 //requestFinishedBuilds,
                 requestRunningBuilds,
                 //requestCanceledBuilds
-                requestLastBuild
+                //requestLastBuild,
+                requestBuildsByProject
             ], function (error, data) {
                 var merged = selectMany(data, function (x) {
                     return x.build || [];
                 });
-                callback(error, merged);
+
+                var uniques = _.uniq(merged,function(x){
+                    return x.buildTypeId && x.branchName;
+                })
+
+                callback(error, uniques);
             });
         },
         requestBuild = function (build, callback) {
