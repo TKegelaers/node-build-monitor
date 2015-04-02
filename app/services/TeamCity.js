@@ -13,9 +13,9 @@ module.exports = function () {
 
         getBuildsByProject = function(){
            return self.configuration.url +
-                   '/httpAuth/app/rest/builds?locator=project:' +
-                    self.configuration.project +
-                    ',branch:default:any';
+                       '/httpAuth/app/rest/builds?locator=project:' +
+                        self.configuration.project +
+                        ',branch:default:any';
         },
 
         getLastBuildUrl = function(){
@@ -71,7 +71,7 @@ module.exports = function () {
                 });
 
                 var uniques = _.uniq(merged,function(x){
-                    return x.buildTypeId && x.branchName;
+                   return [x.buildTypeId, x.branchName].join();
                 })
 
                 callback(error, uniques);
@@ -85,7 +85,11 @@ module.exports = function () {
         queryBuilds = function (callback) {
             requestBuilds(function (error, body) {
                 async.map(body, requestBuild, function (error, results) {
-                    callback(results);
+                    var sorted = _.chain(results)
+                        .sortBy(function(x){return x.finishedAt;})
+                        .sortBy(function(x){return x.sortOrder;})
+                        .value();
+                    callback(sorted);
                 });
             });
         },
@@ -121,6 +125,17 @@ module.exports = function () {
 
             return null;
         },
+        getSortOrder = function (build) {
+        if (build.running) return 1;
+        if (build.canceledInfo) return 2;
+
+        if (build.status === "SUCCESS") return 6;
+        if (build.status === "FAILURE") return 3;
+        if (build.status === "ERROR") return 4;
+        if (build.status === "UNKNOWN") return 5;
+
+        return null;
+    },
         getRequestedFor = function (build) {
 
            if(build.running === true) return null;
@@ -151,7 +166,8 @@ module.exports = function () {
                 status: getStatus(res),
                 reason: res.triggered.type,
                 hasErrors: false,
-                hasWarnings: false
+                hasWarnings: false,
+                sortOrder : getSortOrder(res)
             };
         };
 
