@@ -1,9 +1,10 @@
 var request = require('request'),
     async = require('async'),
-    moment = require('moment'),
+    moment = require('moment-timezone'),
     TEAMCITY_DATE_FORMAT = 'YYYYMMDDTHHmmss+Z',
     _ = require('underscore');
 module.exports = function () {
+
     var self = this,
         selectMany = function (array, selector) {
             return array.map(selector).reduce(function (x, y) {
@@ -58,7 +59,7 @@ module.exports = function () {
                 var requestRunningBuilds = makeRequest.bind(this, getRunningBuildsUrl());
                 //var requestLastBuild = makeRequest.bind(this, getLastBuildUrl());
             var requestBuildsByProject = makeRequest.bind(this,getBuildsByProject());
-            console.log(getLastBuildUrl())
+            console.log(getBuildsByProject())
             async.parallel([
                 //requestFinishedBuilds,
                 requestRunningBuilds,
@@ -85,11 +86,14 @@ module.exports = function () {
         queryBuilds = function (callback) {
             requestBuilds(function (error, body) {
                 async.map(body, requestBuild, function (error, results) {
-                    var sorted = _.chain(results)
-                        .sortBy(function(x){return x.finishedAt;})
-                        .sortBy(function(x){return x.sortOrder;})
-                        .value();
-                    callback(sorted);
+
+
+
+                       // _.chain(results)
+
+                       // ''
+                       //' .value();'
+                    callback(results);
                 });
             });
         },
@@ -152,6 +156,7 @@ module.exports = function () {
            // return null;
         },
         simplifyBuild = function (res) {
+            var date = parseFinishDate(res);
             return {
                 id: res.buildTypeId + '|' + res.number,
                 project: res.buildType.projectName,
@@ -167,10 +172,12 @@ module.exports = function () {
                 reason: res.triggered.type,
                 hasErrors: false,
                 hasWarnings: false,
-                sortOrder : getSortOrder(res)
+                sortOrder : getSortOrder(res),
+
+                finishedAtString: moment.tz(date,"GMT").format("DD/MM/YYYY HH:mm"),
+                startedAtString: moment.tz(parseStartDate(res),"GMT").format("DD/MM/YYYY HH:mm")
             };
         };
-
     self.configure = function (config) {
         self.configuration = config;
     };

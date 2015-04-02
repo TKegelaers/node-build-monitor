@@ -1,4 +1,4 @@
-define(['ko', 'moment', 'countdown'], function (ko, moment, countdown) {
+define(['ko', 'moment', 'countdown' ], function (ko, moment, countdown) {
     var BuildViewModel = function (build) {
         this.isMenuVisible = ko.observable(false);
 
@@ -49,8 +49,8 @@ define(['ko', 'moment', 'countdown'], function (ko, moment, countdown) {
 
         this.time = ko.forcibleComputed(function () {
             return this.isRunning() ?
-                'started ' + moment(this.startedAt()).fromNow() :
-                'finished ' + moment(this.finishedAt()).fromNow();
+                'started ' + build.startedAtString :
+                'finished ' + build.finishedAtString;
         }, this);
 
         this.duration = ko.forcibleComputed(function () {

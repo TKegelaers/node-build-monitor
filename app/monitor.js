@@ -1,5 +1,6 @@
 var async = require('async'),
     events = require('events'),
+    _ = require('underscore');
     log = function (text, debug) {
         if(debug) {
             console.log(new Date().toLocaleTimeString(), '|', text);
@@ -20,15 +21,18 @@ var async = require('async'),
             return build.isRunning ? build.startedAt : build.finishedAt;
         };
 
-        newBuilds.sort(function (a, b) {
-            var dateA = takeDate(a);
-            var dateB = takeDate(b);
 
-            if(dateA < dateB) return 1;
-            if(dateA > dateB) return -1;
-            
-            return 0;
-        });
+
+            newBuilds = result;
+        //newBuilds.sort(function (a, b) {
+        //    var dateA = takeDate(a);
+        //    var dateB = takeDate(b);
+        //
+        //    if(dateA < dateB) return 1;
+        //    if(dateA > dateB) return -1;
+        //
+        //    return 0;
+        //});
     },
     distinctBuildsByETag = function (newBuilds) {
         var unique = {};
@@ -137,15 +141,23 @@ module.exports = function () {
             
             generateAndApplyETags(allBuilds);
             distinctBuildsByETag(allBuilds);
-            sortBuilds(allBuilds);
-            onlyTake(self.configuration.numberOfBuilds, allBuilds);
 
-            if(changed(self.currentBuilds, allBuilds)) {
+            //ortBuilds(allBuilds);
+
+            var result = _(allBuilds)
+                .chain()
+                .sortBy(function(x){return x.finishedAt; })
+                .sortBy(function(x){return x.sortOrder;})
+                .value();
+
+            onlyTake(self.configuration.numberOfBuilds, result);
+
+            if(changed(self.currentBuilds, result)) {
                 log('builds changed', self.configuration.debug);
 
-                self.emit('buildsChanged', detectChanges(self.currentBuilds, allBuilds));
+                self.emit('buildsChanged', detectChanges(self.currentBuilds, result));
 
-                self.currentBuilds = allBuilds;
+                self.currentBuilds = result;
             }
 
             setTimeout(self.run, self.configuration.interval);
