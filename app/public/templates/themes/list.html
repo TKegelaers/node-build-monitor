@@ -9,6 +9,10 @@
              <span> | </span>
           <span data-bind="text: branchName"></span>
          </span>
+          <span data-bind="visible: percentageComplete">
+              <span data-bind="text: percentageComplete"/>
+              <span>%</span>
+          </span>
       </div>
       <div class="part-3  small-text">
           <span class="fa fa-user"/>

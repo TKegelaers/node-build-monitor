@@ -37,7 +37,7 @@ module.exports = function () {
             return getFinishedBuildsUrl() + ',canceled:true';
         },
         getRunningBuildsUrl = function () {
-            return getFinishedBuildsUrl() + ',running:true';
+            return getBuildsByProject() + ',running:true';
         },
         getBuildDetailsUrl = function (url) {
             return self.configuration.url + url;
@@ -173,7 +173,7 @@ module.exports = function () {
                 hasErrors: false,
                 hasWarnings: false,
                 sortOrder : getSortOrder(res),
-
+                percentageComplete: res.percentageComplete,
                 finishedAtString: moment.tz(date,"GMT").format("DD/MM/YYYY HH:mm"),
                 startedAtString: moment.tz(parseStartDate(res),"GMT").format("DD/MM/YYYY HH:mm")
             };
