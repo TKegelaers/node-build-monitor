@@ -80,19 +80,13 @@ module.exports = function () {
         },
         requestBuild = function (build, callback) {
             makeRequest(getBuildDetailsUrl(build.href), function (error, data) {
+                if(data === undefined) return;
                 callback(null, simplifyBuild(data));
             });
         },
         queryBuilds = function (callback) {
             requestBuilds(function (error, body) {
                 async.map(body, requestBuild, function (error, results) {
-
-
-
-                       // _.chain(results)
-
-                       // ''
-                       //' .value();'
                     callback(results);
                 });
             });
@@ -101,7 +95,7 @@ module.exports = function () {
             return moment(build.startDate, 'YYYYMMDDTHHmmss+Z').toDate();
         },
         parseFinishDate = function (build) {
-            if (build.finishDate) {
+            if (build.hasOwnProperty("finishDate") &&  build.finishDate) {
                 return moment(build.finishDate, TEAMCITY_DATE_FORMAT).toDate();
             }
 
