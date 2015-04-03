@@ -1,7 +1,13 @@
 .list-theme .list-container {
-  font-size: 20pt;
+  font-size: 30pt;
   padding: 30px;
   color: white;
+    font-family: Verdana;
+    font-weight: bold;
+}
+
+.list-theme  .small-text{
+    font-size: 20px;
 }
 
 .list-theme .list-item {
@@ -29,19 +35,19 @@
   .list-theme .part-1 {
     text-align: left;
     float: left;
-    width: 35%;
+    width: 80%;
   }
 
   .list-theme .part-2 {
     display: inline-block;
     text-align: center;
     margin: 0 auto;
-    width: 30%;
+    width: 20%;
   }
 
   .list-theme .part-3 {
     text-align: right;
     float: right;
-    width: 35%;
+    width: 20%;
   }
 }

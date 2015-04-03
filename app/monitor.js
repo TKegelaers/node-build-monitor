@@ -146,7 +146,7 @@ module.exports = function () {
 
             var result = _(allBuilds)
                 .chain()
-                .sortBy(function(x){return x.finishedAt; })
+                .sortBy(function(x){return x.finishedAt; }).reverse()
                 .sortBy(function(x){return x.sortOrder;})
                 .value();
 

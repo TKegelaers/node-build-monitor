@@ -49,8 +49,8 @@ define(['ko', 'moment', 'countdown' ], function (ko, moment, countdown) {
 
         this.time = ko.forcibleComputed(function () {
             return this.isRunning() ?
-                'started ' + build.startedAtString :
-                'finished ' + build.finishedAtString;
+                build.startedAtString :
+               build.finishedAtString;
         }, this);
 
         this.duration = ko.forcibleComputed(function () {
