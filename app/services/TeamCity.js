@@ -153,8 +153,8 @@ module.exports = function () {
             var date = parseFinishDate(res);
             return {
                 id: res.buildTypeId + '|' + res.number,
-                project: res.buildType.projectName,
-                definition: res.buildType.name,
+                project: res.hasOwnProperty("buildType") ? res.buildType.projectName : null,
+                definition: res.hasOwnProperty("buildType") ?res.buildType.name : null,
                 branchName: res.branchName,
                 number: res.number,
                 isRunning: res.running === true,
