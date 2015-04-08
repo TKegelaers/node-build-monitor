@@ -136,7 +136,13 @@ module.exports = function () {
     },
         getRequestedFor = function (build) {
 
-           if(build.running === true) return null;
+          try{
+              if(build.running === true ) return null;
+              return build.lastChanges.change[0].username;
+
+          }catch(err) {
+              return null;
+          }
 
            // if (build.triggered.type === 'user' && build.triggered.user) {
              //   return build.triggered.user.name;
@@ -145,7 +151,6 @@ module.exports = function () {
               //  return build.triggered.details;
            // }
 
-            return build.lastChanges.change[0].username;
 
            // return null;
         },
